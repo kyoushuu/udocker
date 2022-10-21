@@ -96,7 +96,11 @@ class DockerIoAPI(object):
                                                     kwargs["RETRY"])
                 if "/v1/" in url:
                     auth_header = self._get_v1_auth(www_authenticate)
-                auth_kwargs.update({"header": [auth_header]})
+                auth_header_name = auth_header.split(":", 1)[0].strip().lower()
+                headers = [h for h in auth_kwargs["header"] \
+                        if h.split(":", 1)[0].strip().lower() != auth_header_name] \
+                        if "header" in auth_kwargs else []
+                auth_kwargs.update({"header": [auth_header] + headers})
         (hdr, buf) = self._get_url(*args, **auth_kwargs)
         return (hdr, buf)
 
