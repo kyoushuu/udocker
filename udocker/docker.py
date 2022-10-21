@@ -11,6 +11,7 @@ from config import Config
 from msg import Msg
 from commonlocalfile import CommonLocalFileApi
 from helper.unique import Unique
+from helper.hostinfo import HostInfo
 from utils.fileutil import FileUtil
 from utils.curl import GetURL
 from utils.chksum import ChkSUM
@@ -366,8 +367,19 @@ class DockerIoAPI(object):
         url = self.registry_url + "/v2/" + imagerepo + \
             "/manifests/" + tag
         Msg().out("Info: manifest url", url, l=Msg.DBG)
-        (hdr, buf) = self._get_url(url)
+        list_content_type = "application/vnd.docker.distribution.manifest.list.v2+json"
+        (hdr, buf) = self._get_url(url, header=[f"Accept: {list_content_type}"])
         try:
+            Msg().out("Info: content type", hdr.data["content-type"], l=Msg.DBG)
+            if hdr.data["content-type"] == list_content_type:
+                manifests = [m for m in json.loads(buf.getvalue().decode())["manifests"] \
+                             if m["platform"]["architecture"] == HostInfo().arch() and \
+                                m["platform"]["os"] == HostInfo().osversion()]
+                Msg().out("Info: manifests", manifests, l=Msg.DBG)
+                if not manifests:
+                    return (hdr.data, [])
+                else:
+                    return self.get_v2_image_manifest(imagerepo, manifests[0]["digest"])
             return (hdr.data, json.loads(buf.getvalue().decode()))
         except (IOError, OSError, AttributeError, ValueError, TypeError):
             return (hdr.data, [])
