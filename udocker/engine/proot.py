@@ -149,6 +149,7 @@ class PRootEngine(ExecutionEngineCommon):
         cmd_l.extend(["-k", self._kernel, ])
         cmd_l.extend(self._get_network_map())
         cmd_l.extend(["-r", self.container_root, ])
+        cmd_l.extend(["--link2symlink", ])
 
         if self.opt["cwd"]:  # set current working directory
             cmd_l.extend(["-w", self.opt["cwd"], ])

@@ -11,6 +11,7 @@ from helper.unique import Unique
 from helper.hostinfo import HostInfo
 from utils.fileutil import FileUtil
 from utils.uprocess import Uprocess
+from utils.proot import PRoot
 
 
 class ContainerStructure(object):
@@ -248,7 +249,8 @@ class ContainerStructure(object):
             if Msg.level >= Msg.VER:
                 verbose = 'v'
                 Msg().out("Info: extracting:", tarf, l=Msg.INF)
-            cmd = ["tar", "-C", destdir, "-x" + verbose,
+            proot = PRoot(self.localrepo).select_proot()
+            cmd = [proot, "--link2symlink", "tar", "-C", destdir, "-x" + verbose,
                    "--one-file-system", "--no-same-owner", "--overwrite",
                    "--exclude=dev/*", "--exclude=etc/udev/devices/*",
                    "--no-same-permissions", r"--exclude=.wh.*",
