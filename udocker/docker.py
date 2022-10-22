@@ -498,7 +498,7 @@ class DockerIoAPI(object):
         if '.' in components[0] and len(components) >= 2:
             registry = components[0]
             del components[0]
-        if ('.' not in components[0] and
+        elif ('.' not in components[0] and
                 components[0] != "library" and len(components) == 1):
             components.insert(0, "library")
         remoterepo = '/'.join(components)
